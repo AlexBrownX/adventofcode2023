@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class DayTwo {
 
@@ -28,6 +27,9 @@ public class DayTwo {
 
         final int partOneResult = partOne(lines);
         System.out.println("Day 2 Part 1 Result = " + partOneResult);
+
+        final int partTwoResult = partTwo(lines);
+        System.out.println("Day 2 Part 2 Result = " + partTwoResult);
     }
 
     private static int partOne(final List<String> lines) {
@@ -46,14 +48,28 @@ public class DayTwo {
         return result;
     }
 
-    private static boolean isGamePossible(final List<Pair<Integer, Colour>> subGames) {
-        for (Pair<Integer, Colour> subGame : subGames) {
-            if (subGame.count > subGame.color.limit) {
-                return false;
-            }
+    private static int partTwo(final List<String> lines) {
+        int result = 0;
+
+        for (final String line : lines) {
+            final Map<Colour, Integer> highestColours = getHighestColours(line);
+            final int power = highestColours.values().stream().reduce(1, (a, b) -> a * b);
+
+            result += power;
         }
 
-        return true;
+        return result;
+    }
+
+    private static Map<Colour, Integer> getHighestColours(final String line) {
+        final Map<Colour, Integer> highestColours = new HashMap<>();
+        final List<Pair<Integer, Colour>> subGamesSorted = getSubGames(line).stream().sorted(Comparator.comparing(o -> o.count)).toList();
+
+        for (Pair<Integer, Colour> subGame : subGamesSorted) {
+            highestColours.put(subGame.color, subGame.count);
+        }
+
+        return highestColours;
     }
 
     private static List<Pair<Integer, Colour>> getSubGames(final String line) {
@@ -77,5 +93,15 @@ public class DayTwo {
         }
 
         return subGames;
+    }
+
+    private static boolean isGamePossible(final List<Pair<Integer, Colour>> subGames) {
+        for (Pair<Integer, Colour> subGame : subGames) {
+            if (subGame.count > subGame.color.limit) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
